@@ -6,6 +6,20 @@
 
 ### 추가
 
+- iTerm2 파워 유저 세팅 자동화 스크립트 전체 구현
+  - `install.sh`: 메인 설치 스크립트 (일반 설치 / --reset 초기화 모드)
+  - `scripts/utils.sh`: 공통 유틸 함수 (로그, 명령어 체크, brew 래퍼)
+  - `scripts/brew.sh`: Homebrew 설치 및 업데이트 모듈
+  - `scripts/fonts.sh`: MesloLGS Nerd Font 설치 모듈
+  - `scripts/zsh.sh`: Oh My Zsh + Powerlevel10k + 플러그인 설치 모듈
+  - `scripts/tools.sh`: CLI 도구 16종 설치 모듈 (fzf, ripgrep, bat, eza 등)
+  - `scripts/iterm2.sh`: iTerm2 설치 + Catppuccin Mocha 테마 + 프로필 설정 모듈
+  - `scripts/dotfiles.sh`: 설정 파일 심링크 배포 및 백업/복원 모듈
+  - `configs/.zshrc`: Zsh 설정 파일 (P10k, 앨리어스, FZF, 도구 초기화)
+  - `configs/.p10k.zsh`: Powerlevel10k lean 프리셋 설정
+  - `configs/.gitconfig.delta`: git-delta 설정 (side-by-side diff)
+  - `themes/`: Catppuccin Mocha 테마 저장 디렉토리
+
 - 프로젝트 초기 구성
   - `CLAUDE.md`: Claude Code 작업 규칙 및 커밋 규칙 정의
   - `HANDOFF.md`: 세션 간 인수인계 파일 생성
