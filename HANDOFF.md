@@ -28,11 +28,9 @@
 
 ## 진행 중인 작업
 
-- `configs/.zshrc`에 npm PATH 추가 변경이 미커밋 상태
+- 없음
 
 ## 다음에 할 작업
-
-- `configs/.zshrc` npm PATH 변경 커밋 여부 결정
 - 실제 환경에서 `./install.sh` 테스트 실행
 - `./install.sh --reset` 초기화 후 재설치 테스트
 - iTerm2 재시작 후 테마, 폰트, 키맵핑 적용 확인

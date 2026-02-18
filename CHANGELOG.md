@@ -4,6 +4,11 @@
 
 ## 2026-02-18
 
+### 추가
+
+- `README.md`: GitHub README 작성 (설치 방법, 설치 항목, 프로젝트 구조)
+- `configs/.zshrc`: npm 글로벌 패키지 PATH 추가
+
 ### 변경
 
 - `configs/.p10k.zsh`: Powerlevel10k 색상 테마를 Catppuccin Mocha 톤으로 변경
@@ -11,7 +16,7 @@
   - 디렉토리, Git 상태, 프롬프트 문자 등 글자 색을 Catppuccin 팔레트로 적용
   - Rainbow 스타일 화살표 구분선 명시적 설정
 
-### 추가
+### 최초 추가
 
 - iTerm2 파워 유저 세팅 자동화 스크립트 전체 구현
   - `install.sh`: 메인 설치 스크립트 (일반 설치 / --reset 초기화 모드)
