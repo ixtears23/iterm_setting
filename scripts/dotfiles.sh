@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # scripts/dotfiles.sh - 설정 파일 배포
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-CONFIGS_DIR="${PROJECT_DIR}/configs"
+_dotfiles_configs_dir() {
+    local script_dir
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    echo "$(dirname "$script_dir")/configs"
+}
 
 backup_and_link() {
     local src="$1"
@@ -25,16 +27,19 @@ backup_and_link() {
 setup_dotfiles() {
     log_info "=== dotfiles 배포 ==="
 
+    local configs_dir
+    configs_dir="$(_dotfiles_configs_dir)"
+
     # .zshrc
-    backup_and_link "${CONFIGS_DIR}/.zshrc" "${HOME}/.zshrc"
+    backup_and_link "${configs_dir}/.zshrc" "${HOME}/.zshrc"
     log_success ".zshrc 배포 완료"
 
     # .p10k.zsh
-    backup_and_link "${CONFIGS_DIR}/.p10k.zsh" "${HOME}/.p10k.zsh"
+    backup_and_link "${configs_dir}/.p10k.zsh" "${HOME}/.p10k.zsh"
     log_success ".p10k.zsh 배포 완료"
 
     # .gitconfig.delta
-    backup_and_link "${CONFIGS_DIR}/.gitconfig.delta" "${HOME}/.gitconfig.delta"
+    backup_and_link "${configs_dir}/.gitconfig.delta" "${HOME}/.gitconfig.delta"
     log_success ".gitconfig.delta 배포 완료"
 
     # .gitconfig에 delta include 추가 안내

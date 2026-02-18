@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 # scripts/iterm2.sh - iTerm2 설치 및 설정
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-THEMES_DIR="${PROJECT_DIR}/themes"
+_iterm_script_dir() { cd "$(dirname "${BASH_SOURCE[0]}")" && pwd; }
+_iterm_project_dir() { dirname "$(_iterm_script_dir)"; }
+
 ITERM_PLIST="${HOME}/Library/Preferences/com.googlecode.iterm2.plist"
 PLISTBUDDY="/usr/libexec/PlistBuddy"
 
 download_catppuccin_theme() {
-    local theme_file="${THEMES_DIR}/catppuccin-mocha.itermcolors"
+    local themes_dir="$(_iterm_project_dir)/themes"
+    local theme_file="${themes_dir}/catppuccin-mocha.itermcolors"
 
     if [[ -f "$theme_file" ]]; then
         log_success "Catppuccin Mocha 테마 이미 다운로드됨"
@@ -28,7 +29,8 @@ download_catppuccin_theme() {
 }
 
 import_iterm_theme() {
-    local theme_file="${THEMES_DIR}/catppuccin-mocha.itermcolors"
+    local themes_dir="$(_iterm_project_dir)/themes"
+    local theme_file="${themes_dir}/catppuccin-mocha.itermcolors"
 
     if [[ ! -f "$theme_file" ]]; then
         log_error "테마 파일이 없습니다: $theme_file"
@@ -36,7 +38,7 @@ import_iterm_theme() {
     fi
 
     log_info "iTerm2에 Catppuccin Mocha 테마 임포트 중..."
-    open "$theme_file"
+    open "$theme_file" 2>/dev/null || true
     sleep 2
     log_success "테마 임포트 완료 (iTerm2에서 확인 필요)"
 }
@@ -46,49 +48,40 @@ configure_iterm_profile() {
 
     # iTerm2가 한 번이라도 실행된 적이 있어야 plist가 존재
     if [[ ! -f "$ITERM_PLIST" ]]; then
-        log_warn "iTerm2 plist가 없습니다. iTerm2를 한 번 실행한 후 다시 시도하세요."
-        return 1
+        log_warn "iTerm2 plist가 없습니다. iTerm2를 먼저 실행합니다..."
+        open -a iTerm
+        sleep 3
+        killall iTerm2 2>/dev/null || true
+        sleep 1
+    fi
+
+    if [[ ! -f "$ITERM_PLIST" ]]; then
+        log_warn "iTerm2 plist를 찾을 수 없습니다. 프로필 설정을 건너뜁니다."
+        log_warn "iTerm2를 수동으로 한 번 실행한 후 install.sh를 다시 실행하세요."
+        return 0
     fi
 
     local PROFILE_PATH=":New Bookmarks:0"
 
-    # 폰트 설정: MesloLGS NF 14pt
-    $PLISTBUDDY -c "Set ${PROFILE_PATH}:\"Normal Font\" MesloLGS-NF-Regular 14" "$ITERM_PLIST" 2>/dev/null ||
-        $PLISTBUDDY -c "Add ${PROFILE_PATH}:\"Normal Font\" string MesloLGS-NF-Regular 14" "$ITERM_PLIST"
+    # PlistBuddy 안전 래퍼: Set 시도 → 실패 시 Add
+    _plist_set() {
+        local key="$1" type="$2" value="$3"
+        $PLISTBUDDY -c "Set ${PROFILE_PATH}:${key} ${value}" "$ITERM_PLIST" 2>/dev/null ||
+            $PLISTBUDDY -c "Add ${PROFILE_PATH}:${key} ${type} ${value}" "$ITERM_PLIST" 2>/dev/null || true
+    }
 
-    # Non-ASCII 폰트도 동일하게
-    $PLISTBUDDY -c "Set ${PROFILE_PATH}:\"Non Ascii Font\" MesloLGS-NF-Regular 14" "$ITERM_PLIST" 2>/dev/null ||
-        $PLISTBUDDY -c "Add ${PROFILE_PATH}:\"Non Ascii Font\" string MesloLGS-NF-Regular 14" "$ITERM_PLIST"
+    _plist_set '"Normal Font"' string "MesloLGS-NF-Regular 14"
+    _plist_set '"Non Ascii Font"' string "MesloLGS-NF-Regular 14"
+    _plist_set "Transparency" real "0.05"
+    _plist_set '"Blur"' bool "true"
+    _plist_set '"Blur Radius"' real "5"
+    _plist_set '"Unlimited Scrollback"' bool "true"
+    _plist_set '"Cursor Type"' integer "1"
+    _plist_set '"Blinking Cursor"' bool "true"
+    _plist_set '"Option Key Sends"' integer "2"
+    _plist_set '"Right Option Key Sends"' integer "2"
 
-    # 투명도 (0.05 = 약간 투명)
-    $PLISTBUDDY -c "Set ${PROFILE_PATH}:Transparency 0.05" "$ITERM_PLIST" 2>/dev/null ||
-        $PLISTBUDDY -c "Add ${PROFILE_PATH}:Transparency real 0.05" "$ITERM_PLIST"
-
-    # 블러
-    $PLISTBUDDY -c "Set ${PROFILE_PATH}:\"Blur\" true" "$ITERM_PLIST" 2>/dev/null ||
-        $PLISTBUDDY -c "Add ${PROFILE_PATH}:\"Blur\" bool true" "$ITERM_PLIST"
-
-    $PLISTBUDDY -c "Set ${PROFILE_PATH}:\"Blur Radius\" 5" "$ITERM_PLIST" 2>/dev/null ||
-        $PLISTBUDDY -c "Add ${PROFILE_PATH}:\"Blur Radius\" real 5" "$ITERM_PLIST"
-
-    # 무제한 스크롤백
-    $PLISTBUDDY -c "Set ${PROFILE_PATH}:\"Unlimited Scrollback\" true" "$ITERM_PLIST" 2>/dev/null ||
-        $PLISTBUDDY -c "Add ${PROFILE_PATH}:\"Unlimited Scrollback\" bool true" "$ITERM_PLIST"
-
-    # 커서: Vertical Bar (1), Blinking
-    $PLISTBUDDY -c "Set ${PROFILE_PATH}:\"Cursor Type\" 1" "$ITERM_PLIST" 2>/dev/null ||
-        $PLISTBUDDY -c "Add ${PROFILE_PATH}:\"Cursor Type\" integer 1" "$ITERM_PLIST"
-
-    $PLISTBUDDY -c "Set ${PROFILE_PATH}:\"Blinking Cursor\" true" "$ITERM_PLIST" 2>/dev/null ||
-        $PLISTBUDDY -c "Add ${PROFILE_PATH}:\"Blinking Cursor\" bool true" "$ITERM_PLIST"
-
-    # Option 키 → Esc+ (Meta) (2 = Esc+)
-    $PLISTBUDDY -c "Set ${PROFILE_PATH}:\"Option Key Sends\" 2" "$ITERM_PLIST" 2>/dev/null ||
-        $PLISTBUDDY -c "Add ${PROFILE_PATH}:\"Option Key Sends\" integer 2" "$ITERM_PLIST"
-
-    $PLISTBUDDY -c "Set ${PROFILE_PATH}:\"Right Option Key Sends\" 2" "$ITERM_PLIST" 2>/dev/null ||
-        $PLISTBUDDY -c "Add ${PROFILE_PATH}:\"Right Option Key Sends\" integer 2" "$ITERM_PLIST"
-
+    unset -f _plist_set
     log_success "iTerm2 프로필 설정 완료"
 }
 
