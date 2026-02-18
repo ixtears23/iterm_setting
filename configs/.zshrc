@@ -96,3 +96,4 @@ alias gl='git log --oneline --graph --decorate'
 
 # ===== iTerm2 Shell Integration =====
 [[ -f "${HOME}/.iterm2_shell_integration.zsh" ]] && source "${HOME}/.iterm2_shell_integration.zsh"
+export PATH="$(npm config get prefix)/bin:$PATH"
