@@ -1,0 +1,18 @@
+# Git delta 설정 - .gitconfig에서 [include] path = ~/.gitconfig.delta 로 포함
+[core]
+    pager = delta
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    navigate = true
+    side-by-side = true
+    line-numbers = true
+    syntax-theme = Catppuccin Mocha
+
+[merge]
+    conflictstyle = diff3
+
+[diff]
+    colorMoved = default
